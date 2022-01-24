@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon --exec npm dev/networkNode.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "node": "nodemon --watch dev -e js dev/networkNode.js 3000 http://localhost:3000"
+    "node": "nodemon --watch dev -e js dev/networkNode.js 3000 https://berrychain.herokuapp.com:3000"
   },
   "author": "",
   "license": "ISC",
