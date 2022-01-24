@@ -4,7 +4,6 @@
   "description": "Berry Block - A lowfi blockchain hosted and mined by a decentrailized network of Raspberry Pis",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm run build",
     "start": "node dev/networkNode.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "node": "nodemon --watch dev -e js dev/networkNode.js 3000 http://0.0.0.0:3000"
