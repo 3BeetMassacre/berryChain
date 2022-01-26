@@ -12,6 +12,14 @@ const bitcoin = new Blockchain();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+/*	COLLECT NODE INFORMATION
+	use os.js https://nodejs.org/api/os.html
+	os.arch() Returns CPU Architecture as string such as 'arm', 'arm64', etc
+	os.cpus() Returns an array of objects containing information about each logical CPU core
+	os.loadavg() Returns an array containing the 1, 5, and 15 minute load averages.
+	os.platform() Returns a string identifying the operating system platform. The value is set at compile time. Possible values are 'aix','darwin', 'freebsd', 'linux', 'openbsd', 'sunos', and 'win32'.
+	os.uptime()	Returns the system uptime in number of seconds.
+*/
 
 // get entire blockchain
 app.get('/blockchain', function (req, res) {
