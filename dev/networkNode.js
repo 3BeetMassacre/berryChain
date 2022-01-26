@@ -1,4 +1,5 @@
 const express = require('express');
+const os = require('os');
 const app = express();
 const bodyParser = require('body-parser');
 const Blockchain = require('./blockchain');
@@ -11,6 +12,11 @@ const bitcoin = new Blockchain();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+/*
+https://github.com/websockets/ws
+websocket library 
+*/
 
 /*	COLLECT NODE INFORMATION
 	use os.js https://nodejs.org/api/os.html
