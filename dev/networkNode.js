@@ -8,7 +8,8 @@ const port = process.argv[2];
 const rp = require('request-promise');
 const nodeAddress = uuid().split('-').join('');
 const bitcoin = new Blockchain();
-
+const hostName = os.hostname();
+const cpuCount = os.cpus().length;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -234,15 +235,59 @@ app.post('/register-nodes-bulk', function (req, res) {
 		const notCurrentNode = bitcoin.currentNodeUrl !== networkNodeUrl;
 		if (nodeNotAlreadyPresent && notCurrentNode) bitcoin.networkNodes.push(networkNodeUrl);
 	});
+	/*
+	new node checks the other nodes for the current blockchain. It updates to the longest blockchain
+	*/
+	const requestPromises = [];
+	bitcoin.networkNodes.forEach(networkNodeUrl => {
+		const requestOptions = {
+			uri: networkNodeUrl + '/blockchain',
+			method: 'GET',
+			json: true
+		};
 
+		requestPromises.push(rp(requestOptions));
+	});
+
+	Promise.all(requestPromises)
+		.then(blockchains => {
+			const currentChainLength = bitcoin.chain.length;
+			let maxChainLength = currentChainLength;
+			let newLongestChain = null;
+			let newPendingTransactions = null;
+
+			blockchains.forEach(blockchain => {
+				if (blockchain.chain.length > maxChainLength) {
+					maxChainLength = blockchain.chain.length;
+					newLongestChain = blockchain.chain;
+					newPendingTransactions = blockchain.pendingTransactions;
+				};
+			});
+
+
+			if (!newLongestChain || (newLongestChain && !bitcoin.chainIsValid(newLongestChain))) {
+				res.json({
+					note: 'Current chain has not been replaced.',
+					chain: bitcoin.chain
+				});
+			}
+			else {
+				bitcoin.chain = newLongestChain;
+				bitcoin.pendingTransactions = newPendingTransactions;
+				res.json({
+					note: 'This chain has been replaced.',
+					chain: bitcoin.chain
+				});
+			}
+		});
 	res.json({ note: 'Bulk registration successful.' });
 });
 
 
 /*
-CONSENSUS -  Check with all other nodes to find the longest blockchain length. If the length is
-			  greater then yours, update with the longest blockchain
-			  This endpoint is a manual blockchain update
+CONSENSUS -  Check with all other nodes to find the longest blockchain length. If the length is greater then yours, update with the longest blockchain
+			  
+This endpoint is a manual blockchain update
 
  ........................................................................
 */
@@ -376,7 +421,7 @@ app.get('/block-explorer', function (req, res) {
 */
 
 app.listen(port, function () {
-	console.log(`Listening on port ${port}...`);
+	console.log(`berryNet ${hostName} with ${cpuCount} CPU cores is listening on port ${port}... to quit enter [control] + c`);
 });
 
 
